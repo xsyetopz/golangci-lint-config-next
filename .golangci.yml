@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://golangci-lint.run/jsonschema/golangci.jsonschema.json
+
 # This file is licensed under the terms of the MIT license https://opensource.org/license/mit
 # Copyright (c) 2021-2025 Marat Reimers
 
@@ -11,6 +13,13 @@
 # Based on https://github.com/maratori/golangci-lint-config
 
 version: "2"
+
+run:
+  # Number of operating system threads (`GOMAXPROCS`) that can execute golangci-lint simultaneously.
+  # Bounds CPU and, with it, peak memory on a shared machine; raise it on a dedicated CI runner.
+  # Default: 0 (automatically set to match Linux container CPU quota and
+  # fall back to the number of logical CPUs in the machine)
+  concurrency: 4
 
 issues:
   # Maximum count of issues with the same text.
@@ -400,6 +409,26 @@ linters:
       # Default: ["EOF", "Err.*"]
       patterns:
         - ".*"
+
+    revive:
+      # Keep the default rules and add the ones below.
+      # Only rules that no other enabled linter covers are listed, so each finding has one source
+      # and `//nolint:<linter>` stays as targeted as the dedicated linters allow.
+      # Default: false
+      enable-default-rules: true
+      rules:
+        - name: bool-literal-in-expr # flags `x && true` and similar
+        - name: confusing-results # asks for names on same-typed results
+        - name: constant-logical-expr # flags conditions that are always true or false
+        - name: datarace # flags loop variables and named results captured by goroutines
+        - name: defer # flags defer in loops, recover calls, and similar mistakes
+        - name: duplicated-imports # flags a package imported twice
+        - name: early-return # prefers an early return over a nested else
+        - name: identical-branches # flags if/else branches with the same body
+        - name: modifies-value-receiver # flags writes to a value receiver that are lost
+        - name: range-val-address # flags the address of a range value
+        - name: string-of-int # flags string(int) conversions
+        - name: unconditional-recursion # flags a function that always calls itself
 
     rowserrcheck:
       # database/sql is always checked.
